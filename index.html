@@ -21,7 +21,13 @@
     .card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     .card-title { font-size: 14px; font-weight: bold; color: #555; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
     
-    textarea { width: 100%; height: 380px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
+    .settings-panel { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+    .settings-title { font-size: 12px; font-weight: bold; color: #2cb696; margin-bottom: 8px; }
+    .settings-options { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #475569; }
+    .settings-options label { display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none; }
+    .settings-options input[type="checkbox"] { accent-color: #2cb696; width: 16px; height: 16px; }
+
+    textarea { width: 100%; height: 320px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
     textarea:focus { border-color: #2cb696; }
     
     .btn-group { display: flex; gap: 8px; margin-top: 12px; }
@@ -33,7 +39,7 @@
     .device-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; }
     .device-btn.active { background: white; color: #2cb696; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     
-    .preview-container { display: flex; justify-content: center; background: #eaedf0; padding: 12px; border-radius: 8px; height: 380px; overflow-y: auto; }
+    .preview-container { display: flex; justify-content: center; background: #eaedf0; padding: 12px; border-radius: 8px; height: 420px; overflow-y: auto; }
     .preview-box { background: #fff; padding: 20px; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; color: #222; transition: all 0.2s ease; width: 100%; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
     .preview-box.mobile { width: 375px; min-height: 100%; border-radius: 8px; }
     .preview-box.pc { width: 100%; }
@@ -41,8 +47,6 @@
     .preview-box blockquote { border-left: 3px solid #2cb696; background: #f7f9fa; padding: 10px 14px; margin: 8px 0; color: #555; border-radius: 0 6px 6px 0; }
     .preview-box blockquote p { margin: 4px 0; }
     .nowrap-bracket { display: inline-block; white-space: nowrap; }
-    
-    .rules-info { font-size: 11px; color: #777; margin-top: 8px; line-height: 1.4; background: #f9fafb; padding: 8px; border-radius: 6px; }
   </style>
 </head>
 <body>
@@ -57,13 +61,27 @@
       <div class="card-title">
         <span>📝 下書き入力</span>
       </div>
-      <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください...&#10;&#10;【自動適用されるルール】&#10;・「。」の直後で自動改行&#10;・「...？」の閉じカッコ「」」落ち防止&#10;・引用ブロック（>）の一体化" oninput="processText()"></textarea>
+
+      <!-- 整形ルール設定パネル -->
+      <div class="settings-panel">
+        <div class="settings-title">⚙️ 整形ルール設定</div>
+        <div class="settings-options">
+          <label>
+            <input type="checkbox" id="optPeriodBreak" checked onchange="processText()"> 句点（。）で自動改行
+          </label>
+          <label>
+            <input type="checkbox" id="optCommaBreak" onchange="processText()"> 読点（、）で自動改行
+          </label>
+          <label>
+            <input type="checkbox" id="optProtectQuotes" checked onchange="processText()"> 鍵カッコ（「」）内の句読点は保護
+          </label>
+        </div>
+      </div>
+
+      <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください...&#10;&#10;【上の「⚙️整形ルール設定」で改行条件を切り替えられます】" oninput="processText()"></textarea>
       <div class="btn-group">
         <button onclick="processText()">⚡️ 最適化して更新</button>
         <button class="secondary" onclick="copyResult()">📋 結果をコピー</button>
-      </div>
-      <div class="rules-info">
-        <b>💡 自動整形ルール</b>: 句点「。」での自動改行（カッコ内除く） / 鍵カッコ末尾「？」や「！」と閉じカッコ「」」の分離防止 / 連続する「>」引用枠の統合
       </div>
     </div>
 
@@ -109,22 +127,39 @@
         return;
       }
 
-      // トークン化してカッコ内を一時保護（カッコ内の「。」で誤って改行しないため）
+      const optPeriod = document.getElementById('optPeriodBreak').checked;
+      const optComma = document.getElementById('optCommaBreak').checked;
+      const optProtect = document.getElementById('optProtectQuotes').checked;
+
       let quotes = [];
-      let protectedText = input.replace(/「[\s\S]*?」|『[\s\S]*?』/g, function(match) {
-        quotes.push(match);
-        return `___QUOTE_${quotes.length - 1}___`;
-      });
+      let workingText = input;
 
-      // カッコ外の「。」の後に改行を挿入（すでに改行がある場合は重複させない）
-      protectedText = protectedText.replace(/。(?![\n\r]|$)/g, '。\n');
+      // カッコ内保護がONの場合
+      if (optProtect) {
+        workingText = workingText.replace(/「[\s\S]*?」|『[\s\S]*?』/g, function(match) {
+          quotes.push(match);
+          return `___QUOTE_${quotes.length - 1}___`;
+        });
+      }
 
-      // 復元処理
-      let formattedText = protectedText.replace(/___QUOTE_(\d+)___/g, function(match, index) {
-        return quotes[index];
-      });
+      // 句点「。」での改行
+      if (optPeriod) {
+        workingText = workingText.replace(/。(?![\n\r]|$)/g, '。\n');
+      }
 
-      const lines = formattedText.split('\n');
+      // 読点「、」での改行
+      if (optComma) {
+        workingText = workingText.replace(/、(?![\n\r]|$)/g, '、\n');
+      }
+
+      // カッコ保護の復元
+      if (optProtect) {
+        workingText = workingText.replace(/___QUOTE_(\d+)___/g, function(match, index) {
+          return quotes[index];
+        });
+      }
+
+      const lines = workingText.split('\n');
       let htmlResult = '';
       let quoteBuffer = [];
 
@@ -167,7 +202,6 @@
         return;
       }
       
-      // 変換された後のテキスト構造を取得してコピー
       const textToCopy = Array.from(previewEl.querySelectorAll('p, blockquote'))
         .map(el => {
           if (el.tagName.toLowerCase() === 'blockquote') {
@@ -177,7 +211,7 @@
         }).join('\n');
 
       navigator.clipboard.writeText(textToCopy);
-      alert('「。」での改行や最適化が適用された文章をコピーしました！noteの編集画面にそのまま貼り付けられます。');
+      alert('設定ルールが適用された文章をコピーしました！noteの編集画面にそのまま貼り付けられます。');
     }
   </script>
 </body>
