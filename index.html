@@ -3,58 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>noteスマホ最適化エディタ</title>
+  <title>note.com スマホ最適化エディタ</title>
   <meta name="theme-color" content="#2cb696">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="note整形">
-  <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%22note%E3%82%B9%E3%83%9E%E3%83%9B%E6%9C%80%E9%81%A9%E5%8C%96%E3%82%A8%E3%83%80%E3%82%A3%E3%82%BF%22,%22short_name%22:%22note%E6%95%B4%E5%BD%A2%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#2cb696%22}">
+  <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%22note.com%20%E3%82%B9%E3%83%9E%E3%83%9B%E6%9C%80%E9%81%A9%E5%8C%96%E3%82%A8%E3%83%80%E3%82%A3%E3%82%BF%22,%22short_name%22:%22note%E6%95%B4%E5%BD%A2%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#2cb696%22}">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f4f5f7; color: #333; padding: 16px; }
     .header { background: #2cb696; color: white; padding: 14px 20px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
     .header h1 { font-size: 18px; font-weight: bold; }
+    
     .container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+    @media (max-width: 850px) { .container { grid-template-columns: 1fr; } }
+    
     .card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .card h2 { font-size: 14px; color: #666; margin-bottom: 8px; }
-    textarea { width: 100%; height: 350px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
+    .card-title { font-size: 14px; font-weight: bold; color: #555; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    
+    textarea { width: 100%; height: 380px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
     textarea:focus { border-color: #2cb696; }
+    
     .btn-group { display: flex; gap: 8px; margin-top: 12px; }
     button { background: #2cb696; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 14px; }
     button:hover { opacity: 0.9; }
     button.secondary { background: #eef1f4; color: #333; }
-    .preview-box { background: #fff; border: 1px solid #e1e4e8; border-radius: 8px; padding: 16px; height: 350px; overflow-y: auto; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; color: #222; }
+    
+    .device-toggle { display: flex; gap: 4px; background: #eef1f4; padding: 4px; border-radius: 8px; }
+    .device-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; }
+    .device-btn.active { background: white; color: #2cb696; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    
+    .preview-container { display: flex; justify-content: center; background: #eaedf0; padding: 12px; border-radius: 8px; height: 380px; overflow-y: auto; }
+    .preview-box { background: #fff; padding: 20px; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; color: #222; transition: all 0.2s ease; width: 100%; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+    .preview-box.mobile { width: 375px; min-height: 100%; border-radius: 8px; }
+    .preview-box.pc { width: 100%; }
+    
     .preview-box blockquote { border-left: 3px solid #2cb696; background: #f7f9fa; padding: 10px 14px; margin: 8px 0; color: #555; border-radius: 0 6px 6px 0; }
     .preview-box blockquote p { margin: 4px 0; }
     .nowrap-bracket { display: inline-block; white-space: nowrap; }
+    
+    .rules-info { font-size: 11px; color: #777; margin-top: 8px; line-height: 1.4; background: #f9fafb; padding: 8px; border-radius: 6px; }
   </style>
 </head>
 <body>
+
   <div class="header">
-    <h1>📱 noteスマホ最適化エディタ</h1>
+    <h1>📱 note.com スマホ最適化エディタ</h1>
   </div>
+
   <div class="container">
+    <!-- 入力エリア -->
     <div class="card">
-      <h2>📝 原稿を入力</h2>
-      <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください..."></textarea>
+      <div class="card-title">
+        <span>📝 下書き入力</span>
+      </div>
+      <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください...&#10;&#10;【自動整形機能】&#10;・「...？」の閉じカッコ「」」落ちを防止&#10;・引用ブロック（>）が割れる不具合を自動結合" oninput="processText()"></textarea>
       <div class="btn-group">
-        <button onclick="processText()">⚡️ 最適化して変換</button>
+        <button onclick="processText()">⚡️ 最適化して更新</button>
         <button class="secondary" onclick="copyResult()">📋 結果をコピー</button>
       </div>
+      <div class="rules-info">
+        <b>💡 自動適用ルール</b>: 鍵カッコ末尾の「？」や「！」と閉じカッコ「」」の分離防止 / 連続する「>」引用枠の一体化処理
+      </div>
     </div>
+
+    <!-- プレビューエリア -->
     <div class="card">
-      <h2>👁️ プレビュー確認</h2>
-      <div id="preview" class="preview-box">ここにプレビューが表示されます</div>
+      <div class="card-title">
+        <span>👁️ プレビュー確認</span>
+        <div class="device-toggle">
+          <button id="btnMobile" class="device-btn active" onclick="setDevice('mobile')">📱 スマホ (375px)</button>
+          <button id="btnPC" class="device-btn" onclick="setDevice('pc')">💻 PC</button>
+        </div>
+      </div>
+      <div class="preview-container">
+        <div id="preview" class="preview-box mobile">ここにプレビューが表示されます</div>
+      </div>
     </div>
   </div>
 
   <script>
+    let currentDevice = 'mobile';
+
+    function setDevice(device) {
+      currentDevice = device;
+      const preview = document.getElementById('preview');
+      const btnMobile = document.getElementById('btnMobile');
+      const btnPC = document.getElementById('btnPC');
+
+      if (device === 'mobile') {
+        preview.className = 'preview-box mobile';
+        btnMobile.className = 'device-btn active';
+        btnPC.className = 'device-btn';
+      } else {
+        preview.className = 'preview-box pc';
+        btnMobile.className = 'device-btn';
+        btnPC.className = 'device-btn active';
+      }
+    }
+
     function processText() {
       const input = document.getElementById('inputText').value;
       const lines = input.split('\n');
       let htmlResult = '';
-      let inQuote = false;
       let quoteBuffer = [];
 
       function flushQuote() {
@@ -65,7 +116,7 @@
       }
 
       function formatLine(text) {
-        // 「...？」などの閉じカッコ」を末尾文字と結合して孤立改行を防止
+        // 「...？」や「...！」などの閉じカッコ」を末尾文字と結合して孤立改行を防止
         return text.replace(/([^\s「」])([？!！?])(」)/g, '$1$2<span class="nowrap-bracket">$3</span>');
       }
 
@@ -85,14 +136,17 @@
       }
       flushQuote();
 
-      document.getElementById('preview').innerHTML = htmlResult;
+      document.getElementById('preview').innerHTML = htmlResult || 'ここにプレビューが表示されます';
     }
 
     function copyResult() {
       const input = document.getElementById('inputText').value;
-      // 引用枠の改行調整と「」」の調整を行ったプレビューそのままテキストをコピー
+      if (!input.trim()) {
+        alert('テキストを入力してください。');
+        return;
+      }
       navigator.clipboard.writeText(input);
-      alert('コピーしました！noteにそのまま貼り付けられます。');
+      alert('コピーしました！noteの編集画面にそのまま貼り付けられます。');
     }
   </script>
 </body>
