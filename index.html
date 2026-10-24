@@ -27,9 +27,15 @@
     .settings-options label { display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none; }
     .settings-options input[type="checkbox"] { accent-color: #2cb696; width: 16px; height: 16px; }
 
-    textarea { width: 100%; height: 320px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
+    textarea { width: 100%; height: 260px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
     textarea:focus { border-color: #2cb696; }
     
+    /* 使い方ガイド（説明書き）のスタイル */
+    .guide-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 12px; margin-top: 10px; font-size: 12px; color: #166534; line-height: 1.5; }
+    .guide-box summary { font-weight: bold; cursor: pointer; color: #15803d; }
+    .guide-list { margin-top: 6px; padding-left: 16px; }
+    .guide-list li { margin: 2px 0; }
+
     .btn-group { display: flex; gap: 8px; margin-top: 12px; }
     button { background: #2cb696; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 14px; }
     button:hover { opacity: 0.9; }
@@ -44,6 +50,11 @@
     .preview-box.mobile { width: 375px; min-height: 100%; border-radius: 8px; }
     .preview-box.pc { width: 100%; }
     
+    .preview-box h2 { font-size: 18px; font-weight: bold; margin: 16px 0 8px 0; border-bottom: 1px solid #eee; padding-bottom: 4px; color: #111; }
+    .preview-box h3 { font-size: 16px; font-weight: bold; margin: 14px 0 6px 0; color: #222; }
+    .preview-box ul { margin: 8px 0; padding-left: 20px; }
+    .preview-box li { margin: 4px 0; }
+    .preview-box hr { border: none; border-top: 2px dashed #ddd; margin: 16px 0; }
     .preview-box blockquote { border-left: 3px solid #2cb696; background: #f7f9fa; padding: 10px 14px; margin: 8px 0; color: #555; border-radius: 0 6px 6px 0; }
     .preview-box blockquote p { margin: 4px 0; }
     .nowrap-bracket { display: inline-block; white-space: nowrap; }
@@ -66,19 +77,25 @@
       <div class="settings-panel">
         <div class="settings-title">⚙️ 整形ルール設定</div>
         <div class="settings-options">
-          <label>
-            <input type="checkbox" id="optPeriodBreak" checked onchange="processText()"> 句点（。）で自動改行
-          </label>
-          <label>
-            <input type="checkbox" id="optCommaBreak" onchange="processText()"> 読点（、）で自動改行
-          </label>
-          <label>
-            <input type="checkbox" id="optProtectQuotes" checked onchange="processText()"> 鍵カッコ（「」）内の句読点は保護
-          </label>
+          <label><input type="checkbox" id="optPeriodBreak" checked onchange="processText()"> 句点（。）で自動改行</label>
+          <label><input type="checkbox" id="optCommaBreak" onchange="processText()"> 読点（、）で自動改行</label>
+          <label><input type="checkbox" id="optProtectQuotes" checked onchange="processText()"> 鍵カッコ内保護</label>
         </div>
       </div>
 
-      <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください...&#10;&#10;【上の「⚙️整形ルール設定」で改行条件を切り替えられます】" oninput="processText()"></textarea>
+      <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください..." oninput="processText()"></textarea>
+      
+      <!-- 追記した使い方の説明書き -->
+      <details class="guide-box" open>
+        <summary>📖 記号・Markdownの書き方ガイド</summary>
+        <ul class="guide-list">
+          <li><b>## 見出し / ### 小見出し</b>：行頭に「## 」でセクション見出し</li>
+          <li><b>> 引用ブロック</b>：行頭に「> 」で連続した綺麗な1つの引用枠に統合</li>
+          <li><b>* 箇条書き / - リスト</b>：行頭に「* 」や「- 」で箇条書きリスト</li>
+          <li><b>--- または ***</b>：行頭にこれだけで点線の区切り線を表示</li>
+        </ul>
+      </details>
+
       <div class="btn-group">
         <button onclick="processText()">⚡️ 最適化して更新</button>
         <button class="secondary" onclick="copyResult()">📋 結果をコピー</button>
@@ -134,7 +151,6 @@
       let quotes = [];
       let workingText = input;
 
-      // カッコ内保護がONの場合
       if (optProtect) {
         workingText = workingText.replace(/「[\s\S]*?」|『[\s\S]*?』/g, function(match) {
           quotes.push(match);
@@ -142,17 +158,9 @@
         });
       }
 
-      // 句点「。」での改行
-      if (optPeriod) {
-        workingText = workingText.replace(/。(?![\n\r]|$)/g, '。\n');
-      }
+      if (optPeriod) workingText = workingText.replace(/。(?![\n\r]|$)/g, '。\n');
+      if (optComma) workingText = workingText.replace(/、(?![\n\r]|$)/g, '、\n');
 
-      // 読点「、」での改行
-      if (optComma) {
-        workingText = workingText.replace(/、(?![\n\r]|$)/g, '、\n');
-      }
-
-      // カッコ保護の復元
       if (optProtect) {
         workingText = workingText.replace(/___QUOTE_(\d+)___/g, function(match, index) {
           return quotes[index];
@@ -162,6 +170,7 @@
       const lines = workingText.split('\n');
       let htmlResult = '';
       let quoteBuffer = [];
+      let inUl = false;
 
       function flushQuote() {
         if (quoteBuffer.length > 0) {
@@ -170,48 +179,80 @@
         }
       }
 
+      function closeUl() {
+        if (inUl) {
+          htmlResult += '</ul>';
+          inUl = false;
+        }
+      }
+
       function formatLine(text) {
-        // 「...？」や「...！」の閉じカッコ」分離防止
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         return text.replace(/([^\s「」])([？!！?])(」)/g, '$1$2<span class="nowrap-bracket">$3</span>');
       }
 
       for (let i = 0; i < lines.length; i++) {
         let line = lines[i];
-        if (line.trim().startsWith('>')) {
-          let content = line.replace(/^>\s?/, '');
+        let trimmed = line.trim();
+
+        if (trimmed.startsWith('>')) {
+          closeUl();
+          let content = trimmed.replace(/^>\s?/, '');
           quoteBuffer.push(content);
+          continue;
         } else {
           flushQuote();
-          if (line.trim() === '') {
-            htmlResult += '<br>';
-          } else {
-            htmlResult += `<p>${formatLine(line)}</p>`;
+        }
+
+        if (trimmed.startsWith('### ')) {
+          closeUl();
+          htmlResult += `<h3>${formatLine(trimmed.replace(/^###\s/, ''))}</h3>`;
+          continue;
+        }
+        if (trimmed.startsWith('## ')) {
+          closeUl();
+          htmlResult += `<h2>${formatLine(trimmed.replace(/^##\s/, ''))}</h2>`;
+          continue;
+        }
+
+        if (trimmed === '---' || trimmed === '***') {
+          closeUl();
+          htmlResult += '<hr>';
+          continue;
+        }
+
+        if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+          if (!inUl) {
+            htmlResult += '<ul>';
+            inUl = true;
           }
+          let content = trimmed.replace(/^[\*\-]\s?/, '');
+          htmlResult += `<li>${formatLine(content)}</li>`;
+          continue;
+        } else {
+          closeUl();
+        }
+
+        if (trimmed === '') {
+          htmlResult += '<br>';
+        } else {
+          htmlResult += `<p>${formatLine(trimmed)}</p>`;
         }
       }
       flushQuote();
+      closeUl();
 
       document.getElementById('preview').innerHTML = htmlResult;
     }
 
     function copyResult() {
-      const previewEl = document.getElementById('preview');
       const input = document.getElementById('inputText').value;
       if (!input.trim()) {
         alert('テキストを入力してください。');
         return;
       }
-      
-      const textToCopy = Array.from(previewEl.querySelectorAll('p, blockquote'))
-        .map(el => {
-          if (el.tagName.toLowerCase() === 'blockquote') {
-            return Array.from(el.querySelectorAll('p')).map(p => '> ' + p.innerText).join('\n');
-          }
-          return el.innerText;
-        }).join('\n');
-
-      navigator.clipboard.writeText(textToCopy);
-      alert('設定ルールが適用された文章をコピーしました！noteの編集画面にそのまま貼り付けられます。');
+      navigator.clipboard.writeText(input);
+      alert('コピーしました！noteの編集画面にそのまま貼り付けられます。');
     }
   </script>
 </body>
