@@ -57,13 +57,13 @@
       <div class="card-title">
         <span>📝 下書き入力</span>
       </div>
-      <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください...&#10;&#10;【自動整形機能】&#10;・「...？」の閉じカッコ「」」落ちを防止&#10;・引用ブロック（>）が割れる不具合を自動結合" oninput="processText()"></textarea>
+      <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください...&#10;&#10;【自動適用されるルール】&#10;・「。」の直後で自動改行&#10;・「...？」の閉じカッコ「」」落ち防止&#10;・引用ブロック（>）の一体化" oninput="processText()"></textarea>
       <div class="btn-group">
         <button onclick="processText()">⚡️ 最適化して更新</button>
         <button class="secondary" onclick="copyResult()">📋 結果をコピー</button>
       </div>
       <div class="rules-info">
-        <b>💡 自動適用ルール</b>: 鍵カッコ末尾の「？」や「！」と閉じカッコ「」」の分離防止 / 連続する「>」引用枠の一体化処理
+        <b>💡 自動整形ルール</b>: 句点「。」での自動改行（カッコ内除く） / 鍵カッコ末尾「？」や「！」と閉じカッコ「」」の分離防止 / 連続する「>」引用枠の統合
       </div>
     </div>
 
@@ -104,7 +104,27 @@
 
     function processText() {
       const input = document.getElementById('inputText').value;
-      const lines = input.split('\n');
+      if (!input) {
+        document.getElementById('preview').innerHTML = 'ここにプレビューが表示されます';
+        return;
+      }
+
+      // トークン化してカッコ内を一時保護（カッコ内の「。」で誤って改行しないため）
+      let quotes = [];
+      let protectedText = input.replace(/「[\s\S]*?」|『[\s\S]*?』/g, function(match) {
+        quotes.push(match);
+        return `___QUOTE_${quotes.length - 1}___`;
+      });
+
+      // カッコ外の「。」の後に改行を挿入（すでに改行がある場合は重複させない）
+      protectedText = protectedText.replace(/。(?![\n\r]|$)/g, '。\n');
+
+      // 復元処理
+      let formattedText = protectedText.replace(/___QUOTE_(\d+)___/g, function(match, index) {
+        return quotes[index];
+      });
+
+      const lines = formattedText.split('\n');
       let htmlResult = '';
       let quoteBuffer = [];
 
@@ -116,7 +136,7 @@
       }
 
       function formatLine(text) {
-        // 「...？」や「...！」などの閉じカッコ」を末尾文字と結合して孤立改行を防止
+        // 「...？」や「...！」の閉じカッコ」分離防止
         return text.replace(/([^\s「」])([？!！?])(」)/g, '$1$2<span class="nowrap-bracket">$3</span>');
       }
 
@@ -136,17 +156,28 @@
       }
       flushQuote();
 
-      document.getElementById('preview').innerHTML = htmlResult || 'ここにプレビューが表示されます';
+      document.getElementById('preview').innerHTML = htmlResult;
     }
 
     function copyResult() {
+      const previewEl = document.getElementById('preview');
       const input = document.getElementById('inputText').value;
       if (!input.trim()) {
         alert('テキストを入力してください。');
         return;
       }
-      navigator.clipboard.writeText(input);
-      alert('コピーしました！noteの編集画面にそのまま貼り付けられます。');
+      
+      // 変換された後のテキスト構造を取得してコピー
+      const textToCopy = Array.from(previewEl.querySelectorAll('p, blockquote'))
+        .map(el => {
+          if (el.tagName.toLowerCase() === 'blockquote') {
+            return Array.from(el.querySelectorAll('p')).map(p => '> ' + p.innerText).join('\n');
+          }
+          return el.innerText;
+        }).join('\n');
+
+      navigator.clipboard.writeText(textToCopy);
+      alert('「。」での改行や最適化が適用された文章をコピーしました！noteの編集画面にそのまま貼り付けられます。');
     }
   </script>
 </body>
