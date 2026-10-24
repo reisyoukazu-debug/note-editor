@@ -30,7 +30,6 @@
     textarea { width: 100%; height: 260px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
     textarea:focus { border-color: #2cb696; }
     
-    /* 使い方ガイド（説明書き）のスタイル */
     .guide-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 12px; margin-top: 10px; font-size: 12px; color: #166534; line-height: 1.5; }
     .guide-box summary { font-weight: bold; cursor: pointer; color: #15803d; }
     .guide-list { margin-top: 6px; padding-left: 16px; }
@@ -45,10 +44,13 @@
     .device-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; }
     .device-btn.active { background: white; color: #2cb696; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     
-    .preview-container { display: flex; justify-content: center; background: #eaedf0; padding: 12px; border-radius: 8px; height: 420px; overflow-y: auto; }
-    .preview-box { background: #fff; padding: 20px; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; color: #222; transition: all 0.2s ease; width: 100%; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
-    .preview-box.mobile { width: 375px; min-height: 100%; border-radius: 8px; }
-    .preview-box.pc { width: 100%; }
+    /* プレビュー外枠：高さを入力欄と完全に一致させ、背景をすっきり統一 */
+    .preview-container { display: flex; justify-content: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; height: 420px; overflow-y: auto; }
+    
+    /* プレビュー本体：スマホサイズ時も高さいっぱいに白地を確保 */
+    .preview-box { background: #fff; padding: 20px; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; color: #222; transition: all 0.2s ease; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+    .preview-box.mobile { width: 375px; min-height: 100%; border-radius: 8px; border: 1px solid #e1e4e8; }
+    .preview-box.pc { width: 100%; min-height: 100%; }
     
     .preview-box h2 { font-size: 18px; font-weight: bold; margin: 16px 0 8px 0; border-bottom: 1px solid #eee; padding-bottom: 4px; color: #111; }
     .preview-box h3 { font-size: 16px; font-weight: bold; margin: 14px 0 6px 0; color: #222; }
@@ -73,7 +75,6 @@
         <span>📝 下書き入力</span>
       </div>
 
-      <!-- 整形ルール設定パネル -->
       <div class="settings-panel">
         <div class="settings-title">⚙️ 整形ルール設定</div>
         <div class="settings-options">
@@ -85,7 +86,6 @@
 
       <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください..." oninput="processText()"></textarea>
       
-      <!-- 追記した使い方の説明書き -->
       <details class="guide-box" open>
         <summary>📖 記号・Markdownの書き方ガイド</summary>
         <ul class="guide-list">
