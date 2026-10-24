@@ -44,13 +44,13 @@
     .device-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; }
     .device-btn.active { background: white; color: #2cb696; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     
-    /* プレビュー外枠：ここ全体がグレー背景＆スクロールエリア */
-    .preview-container { background: #e2e8f0; border: 1px solid #cbd5e1; padding: 20px 10px; border-radius: 8px; height: 505px; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+    /* プレビュー全体の外枠（グレーの背景） */
+    .preview-container { background: #eaedf0; border: 1px solid #dcdfe4; padding: 20px; border-radius: 8px; height: 505px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
     
-    /* プレビュー本体（スマホ枠・PC枠）：中身の文章量に合わせて白い背景がどこまでも縦に伸びる */
-    .preview-box { background: #fff; color: #222; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 24px; transition: width 0.2s ease; margin: auto 0; }
-    .preview-box.mobile { width: 375px; min-height: 100%; border: 1px solid #cbd5e1; }
-    .preview-box.pc { width: 100%; min-height: 100%; }
+    /* プレビュー本体（白背景のデバイス枠。内部だけがスクロールする） */
+    .preview-box { background: #fff; color: #222; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 20px; height: 100%; overflow-y: auto; transition: width 0.2s ease; }
+    .preview-box.mobile { width: 375px; border: 1px solid #cbd5e1; }
+    .preview-box.pc { width: 100%; }
     
     .preview-box h2 { font-size: 18px; font-weight: bold; margin: 16px 0 8px 0; border-bottom: 1px solid #eee; padding-bottom: 4px; color: #111; }
     .preview-box h3 { font-size: 16px; font-weight: bold; margin: 14px 0 6px 0; color: #222; }
