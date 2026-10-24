@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>noteスマホ最適化エディタ</title>
+  <meta name="theme-color" content="#2cb696">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="note整形">
+  <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%22note%E3%82%B9%E3%83%9E%E3%83%9B%E6%9C%80%E9%81%A9%E5%8C%96%E3%82%A8%E3%83%80%E3%82%A3%E3%82%BF%22,%22short_name%22:%22note%E6%95%B4%E5%BD%A2%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#2cb696%22}">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f4f5f7; color: #333; padding: 16px; }
+    .header { background: #2cb696; color: white; padding: 14px 20px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .header h1 { font-size: 18px; font-weight: bold; }
+    .container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 768px) { .container { grid-template-columns: 1fr; } }
+    .card { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .card h2 { font-size: 14px; color: #666; margin-bottom: 8px; }
+    textarea { width: 100%; height: 350px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; line-height: 1.6; resize: vertical; outline: none; }
+    textarea:focus { border-color: #2cb696; }
+    .btn-group { display: flex; gap: 8px; margin-top: 12px; }
+    button { background: #2cb696; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 14px; }
+    button:hover { opacity: 0.9; }
+    button.secondary { background: #eef1f4; color: #333; }
+    .preview-box { background: #fff; border: 1px solid #e1e4e8; border-radius: 8px; padding: 16px; height: 350px; overflow-y: auto; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; color: #222; }
+    .preview-box blockquote { border-left: 3px solid #2cb696; background: #f7f9fa; padding: 10px 14px; margin: 8px 0; color: #555; border-radius: 0 6px 6px 0; }
+    .preview-box blockquote p { margin: 4px 0; }
+    .nowrap-bracket { display: inline-block; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📱 noteスマホ最適化エディタ</h1>
+  </div>
+  <div class="container">
+    <div class="card">
+      <h2>📝 原稿を入力</h2>
+      <textarea id="inputText" placeholder="ここにnoteの文章を貼り付けてください..."></textarea>
+      <div class="btn-group">
+        <button onclick="processText()">⚡️ 最適化して変換</button>
+        <button class="secondary" onclick="copyResult()">📋 結果をコピー</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>👁️ プレビュー確認</h2>
+      <div id="preview" class="preview-box">ここにプレビューが表示されます</div>
+    </div>
+  </div>
+
+  <script>
+    function processText() {
+      const input = document.getElementById('inputText').value;
+      const lines = input.split('\n');
+      let htmlResult = '';
+      let inQuote = false;
+      let quoteBuffer = [];
+
+      function flushQuote() {
+        if (quoteBuffer.length > 0) {
+          htmlResult += '<blockquote>' + quoteBuffer.map(line => `<p>${formatLine(line)}</p>`).join('') + '</blockquote>';
+          quoteBuffer = [];
+        }
+      }
+
+      function formatLine(text) {
+        // 「...？」などの閉じカッコ」を末尾文字と結合して孤立改行を防止
+        return text.replace(/([^\s「」])([？!！?])(」)/g, '$1$2<span class="nowrap-bracket">$3</span>');
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        if (line.trim().startsWith('>')) {
+          let content = line.replace(/^>\s?/, '');
+          quoteBuffer.push(content);
+        } else {
+          flushQuote();
+          if (line.trim() === '') {
+            htmlResult += '<br>';
+          } else {
+            htmlResult += `<p>${formatLine(line)}</p>`;
+          }
+        }
+      }
+      flushQuote();
+
+      document.getElementById('preview').innerHTML = htmlResult;
+    }
+
+    function copyResult() {
+      const input = document.getElementById('inputText').value;
+      // 引用枠の改行調整と「」」の調整を行ったプレビューそのままテキストをコピー
+      navigator.clipboard.writeText(input);
+      alert('コピーしました！noteにそのまま貼り付けられます。');
+    }
+  </script>
+</body>
+</html>
