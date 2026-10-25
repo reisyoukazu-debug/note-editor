@@ -8,7 +8,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="note整形">
-  <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%22note.com%20%E3%82%B9%E3%83%9E%E3%83%9B%E6%9C%80%E9%81%A9%E5%8C%96%E3%82%A0%E3%83%80%E3%82%A3%E3%82%BF%22,%22short_name%22:%22note%E6%95%B4%E5%BD%A2%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#2cb696%22}">
+
+  <!-- iPhoneホーム画面用アイコン設定 (SVG埋め込み) -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%232cb696'/%3E%3Cpath d='M160 140h192c11 0 20 9 20 20v20c0 11-9 20-20 20H160c-11 0-20-9-20-20v-20c0-11 9-20 20-20zm0 96h192c11 0 20 9 20 20v20c0 11-9 20-20 20H160c-11 0-20-9-20-20v-20c0-11 9-20 20-20zm0 96h120c11 0 20 9 20 20v20c0 11-9 20-20 20H160c-11 0-20-9-20-20v-20c0-11 9-20 20-20z' fill='white'/%3E%3Cpath d='M350 310l30 30-60 60h-30v-30l60-60z' fill='%23ffffff'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%232cb696'/%3E%3Cpath d='M160 140h192c11 0 20 9 20 20v20c0 11-9 20-20 20H160c-11 0-20-9-20-20v-20c0-11 9-20 20-20zm0 96h192c11 0 20 9 20 20v20c0 11-9 20-20 20H160c-11 0-20-9-20-20v-20c0-11 9-20 20-20zm0 96h120c11 0 20 9 20 20v20c0 11-9 20-20 20H160c-11 0-20-9-20-20v-20c0-11 9-20 20-20z' fill='white'/%3E%3C/svg%3E">
+
+  <link rel="manifest" href="data:application/manifest+json;utf8,{%22name%22:%22note.com%20%E3%82%B9%E3%83%9E%E3%83%9B%E6%9C%80%E9%81%A9%E5%8C%96%E3%82%A8%E3%83%80%E3%82%A3%E3%82%BF%22,%22short_name%22:%22note%E6%95%B4%E5%BD%A2%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22#ffffff%22,%22theme_color%22:%22#2cb696%22}">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f4f5f7; color: #333; padding: 16px; }
@@ -44,10 +49,8 @@
     .device-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; }
     .device-btn.active { background: white; color: #2cb696; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     
-    /* プレビュー全体の外枠（グレーの背景） */
     .preview-container { background: #eaedf0; border: 1px solid #dcdfe4; padding: 20px; border-radius: 8px; height: 505px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
     
-    /* プレビュー本体（白背景のデバイス枠。内部だけがスクロールする） */
     .preview-box { background: #fff; color: #222; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 20px; height: 100%; overflow-y: auto; transition: width 0.2s ease; }
     .preview-box.mobile { width: 375px; border: 1px solid #cbd5e1; }
     .preview-box.pc { width: 100%; }
