@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="note整形">
 
-  <!-- iPhoneホーム画面用PNGアイコン設定 -->
+  <!-- iPhoneホーム画面用アイコン設定 -->
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="icon" type="image/png" href="icon-192.png">
 
@@ -63,9 +63,29 @@
     .preview-box blockquote { border-left: 3px solid #2cb696; background: #f7f9fa; padding: 10px 14px; margin: 8px 0; color: #555; border-radius: 0 6px 6px 0; }
     .preview-box blockquote p { margin: 4px 0; }
     .nowrap-bracket { display: inline-block; white-space: nowrap; }
+
+    /* ロック画面用スタイル */
+    #lockScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f4f5f7; z-index: 9999; display: flex; justify-content: center; align-items: center; }
+    .lock-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); width: 100%; max-width: 380px; text-align: center; }
+    .lock-card h2 { font-size: 18px; color: #2cb696; margin-bottom: 10px; }
+    .lock-card p { font-size: 13px; color: #666; margin-bottom: 20px; line-height: 1.5; }
+    .lock-card input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; margin-bottom: 12px; outline: none; text-align: center; }
+    .lock-card input:focus { border-color: #2cb696; }
+    .lock-error { color: #e53e3e; font-size: 12px; margin-top: 8px; display: none; }
   </style>
 </head>
 <body>
+
+  <!-- パスワード入力画面（ロック画面） -->
+  <div id="lockScreen">
+    <div class="lock-card">
+      <h2>🔒 フォロワー限定ツール</h2>
+      <p>このツールを利用するには、noteの記事に記載されている「合言葉（パスワード）」を入力してください。</p>
+      <input type="password" id="passInput" placeholder="合言葉を入力" onkeydown="if(event.key==='Enter') checkPassword()">
+      <button onclick="checkPassword()">認証して利用する</button>
+      <div id="lockError" class="lock-error">パスワードが違います。</div>
+    </div>
+  </div>
 
   <div class="header">
     <h1>📱 note.com スマホ最適化エディタ</h1>
@@ -121,6 +141,29 @@
   </div>
 
   <script>
+    // ▼▼▼ ここで合言葉（パスワード）を変更できます ▼▼▼
+    const CORRECT_PASSWORD = 'note_kaiteki_2026';
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    // ページ読み込み時に過去に認証済みかチェック
+    window.onload = function() {
+      if (localStorage.getItem('note_editor_auth') === 'true') {
+        document.getElementById('lockScreen').style.display = 'none';
+      }
+    };
+
+    function checkPassword() {
+      const inputVal = document.getElementById('passInput').value;
+      const errorDiv = document.getElementById('lockError');
+
+      if (inputVal === CORRECT_PASSWORD) {
+        localStorage.setItem('note_editor_auth', 'true');
+        document.getElementById('lockScreen').style.display = 'none';
+      } else {
+        errorDiv.style.display = 'block';
+      }
+    }
+
     let currentDevice = 'mobile';
 
     function setDevice(device) {
