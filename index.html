@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="note整形">
 
-  <!-- iPhoneホーム画面用アイコン設定 -->
+  <!-- iPhoneホーム画面用PNGアイコン設定 -->
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="icon" type="image/png" href="icon-192.png">
 
@@ -40,10 +40,12 @@
     .guide-list { margin-top: 6px; padding-left: 16px; }
     .guide-list li { margin: 2px 0; }
 
-    .btn-group { display: flex; gap: 8px; margin-top: 12px; }
-    button { background: #2cb696; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 14px; }
+    .btn-group { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    button { background: #2cb696; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 14px; min-width: 110px; }
     button:hover { opacity: 0.9; }
     button.secondary { background: #eef1f4; color: #333; }
+    button.danger { background: #ef4444; color: white; flex: 0 0 auto; } /* 全消しボタン用 */
+    button.danger:hover { background: #dc2626; }
     
     .device-toggle { display: flex; gap: 4px; background: #eef1f4; padding: 4px; border-radius: 8px; }
     .device-btn { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: none; background: transparent; color: #666; cursor: pointer; }
@@ -122,6 +124,7 @@
       <div class="btn-group">
         <button onclick="processText()">⚡️ 最適化して更新</button>
         <button class="secondary" onclick="copyResult()">📋 結果をコピー</button>
+        <button class="danger" onclick="clearText()">🗑️ 全消し</button>
       </div>
     </div>
 
@@ -142,10 +145,9 @@
 
   <script>
     // ▼▼▼ ここで合言葉（パスワード）を変更できます ▼▼▼
-    const CORRECT_PASSWORD = 'note_kaiteki_2026';
+    const CORRECT_PASSWORD = 'note_pc_kaiteki_2026';
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
-    // ページ読み込み時に過去に認証済みかチェック
     window.onload = function() {
       if (localStorage.getItem('note_editor_auth') === 'true') {
         document.getElementById('lockScreen').style.display = 'none';
@@ -299,6 +301,18 @@
       }
       navigator.clipboard.writeText(input);
       alert('コピーしました！noteの編集画面にそのまま貼り付けられます。');
+    }
+
+    // 新機能: 下書き全消し処理
+    function clearText() {
+      const input = document.getElementById('inputText');
+      if (!input.value.trim()) {
+        return; // 最初から空なら何も処理しない
+      }
+      if (confirm('入力した下書きをすべて消去しますか？')) {
+        input.value = '';
+        processText(); // プレビューもリセット
+      }
     }
   </script>
 </body>
