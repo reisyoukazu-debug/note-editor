@@ -9,7 +9,6 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="note整形">
 
-  <!-- iPhoneホーム画面用PNGアイコン設定 -->
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="icon" type="image/png" href="icon-192.png">
 
@@ -44,7 +43,7 @@
     button { background: #2cb696; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 14px; min-width: 110px; }
     button:hover { opacity: 0.9; }
     button.secondary { background: #eef1f4; color: #333; }
-    button.danger { background: #ef4444; color: white; flex: 0 0 auto; } /* 全消しボタン用 */
+    button.danger { background: #ef4444; color: white; flex: 0 0 auto; }
     button.danger:hover { background: #dc2626; }
     
     .device-toggle { display: flex; gap: 4px; background: #eef1f4; padding: 4px; border-radius: 8px; }
@@ -53,17 +52,38 @@
     
     .preview-container { background: #eaedf0; border: 1px solid #dcdfe4; padding: 20px; border-radius: 8px; height: 505px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
     
-    .preview-box { background: #fff; color: #222; font-size: 15px; line-height: 1.85; letter-spacing: 0.03em; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 20px; height: 100%; overflow-y: auto; transition: width 0.2s ease; }
-    .preview-box.mobile { width: 375px; border: 1px solid #cbd5e1; }
-    .preview-box.pc { width: 100%; }
+    /* プレビュー本体共通設定 */
+    .preview-box { 
+      background: #fff; 
+      color: #222222; 
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "BIZ UDPGothic", Meiryo, sans-serif;
+      font-size: 16px; 
+      line-height: 1.8; 
+      letter-spacing: 0.01em; 
+      word-break: normal;
+      overflow-wrap: break-word;
+      border-radius: 8px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+      padding: 24px 14px; 
+      height: 100%; 
+      overflow-y: auto; 
+      transition: width 0.2s ease; 
+    }
     
-    .preview-box h2 { font-size: 18px; font-weight: bold; margin: 16px 0 8px 0; border-bottom: 1px solid #eee; padding-bottom: 4px; color: #111; }
-    .preview-box h3 { font-size: 16px; font-weight: bold; margin: 14px 0 6px 0; color: #222; }
-    .preview-box ul { margin: 8px 0; padding-left: 20px; }
-    .preview-box li { margin: 4px 0; }
-    .preview-box hr { border: none; border-top: 2px dashed #ddd; margin: 16px 0; }
-    .preview-box blockquote { border-left: 3px solid #2cb696; background: #f7f9fa; padding: 10px 14px; margin: 8px 0; color: #555; border-radius: 0 6px 6px 0; }
-    .preview-box blockquote p { margin: 4px 0; }
+    /* スマホ版（全角3文字分狭く） */
+    .preview-box.mobile { width: 387px; border: 1px solid #cbd5e1; }
+    /* PC版（全角2文字分狭く） */
+    .preview-box.pc { width: 100%; max-width: 563px; }
+    
+    .preview-box h2 { font-size: 20px; font-weight: bold; margin: 16px 0 8px 0; border-bottom: 1px solid #eee; padding-bottom: 4px; color: #111; }
+    .preview-box h3 { font-size: 17px; font-weight: bold; margin: 14px 0 6px 0; color: #222; }
+    .preview-box ul { margin: 8px 0; padding-left: 24px; }
+    .preview-box li { margin: 2px 0; }
+    .preview-box hr { border: none; border-top: 2px dashed #ddd; margin: 14px 0; }
+    .preview-box blockquote { border-left: 3px solid #2cb696; background: #f7f9fa; padding: 8px 12px; margin: 8px 0; color: #555; border-radius: 0 6px 6px 0; }
+    .preview-box blockquote p { margin: 2px 0; }
+    
+    .preview-box p { margin-bottom: 12px; }
     .nowrap-bracket { display: inline-block; white-space: nowrap; }
 
     /* ロック画面用スタイル */
@@ -81,8 +101,8 @@
   <!-- パスワード入力画面（ロック画面） -->
   <div id="lockScreen">
     <div class="lock-card">
-      <h2>🔒 フォロワー限定ツール</h2>
-      <p>このツールを利用するには、noteの記事に記載されている「合言葉（パスワード）」を入力してください。</p>
+      <h2>🔒 限定ツール</h2>
+      <p>このツールを利用するには、noteの記事に記載されている合言葉を入力してください。</p>
       <input type="password" id="passInput" placeholder="合言葉を入力" onkeydown="if(event.key==='Enter') checkPassword()">
       <button onclick="checkPassword()">認証して利用する</button>
       <div id="lockError" class="lock-error">パスワードが違います。</div>
@@ -114,6 +134,7 @@
       <details class="guide-box" open>
         <summary>📖 記号・Markdownの書き方ガイド</summary>
         <ul class="guide-list">
+          <li><b>**太字**</b>：囲んだ文字を太字に変換</li>
           <li><b>## 見出し / ### 小見出し</b>：行頭に「## 」でセクション見出し</li>
           <li><b>> 引用ブロック</b>：行頭に「> 」で連続した綺麗な1つの引用枠に統合</li>
           <li><b>* 箇条書き / - リスト</b>：行頭に「* 」や「- 」で箇条書きリスト</li>
@@ -123,8 +144,8 @@
 
       <div class="btn-group">
         <button onclick="processText()">⚡️ 最適化して更新</button>
-        <button class="secondary" onclick="copyResult()">📋 結果をコピー</button>
-        <button class="danger" onclick="clearText()">🗑️ 全消し</button>
+        <button class="secondary" onclick="copyForNote()">📋 note用にコピー</button>
+        <button class="danger" onclick="clearTest()">🗑️ 全消し</button>
       </div>
     </div>
 
@@ -133,8 +154,8 @@
       <div class="card-title">
         <span>👁️ プレビュー確認</span>
         <div class="device-toggle">
-          <button id="btnMobile" class="device-btn active" onclick="setDevice('mobile')">📱 スマホ (375px)</button>
-          <button id="btnPC" class="device-btn" onclick="setDevice('pc')">💻 PC</button>
+          <button id="btnMobile" class="device-btn active" onclick="setDevice('mobile')">📱 スマホ版</button>
+          <button id="btnPC" class="device-btn" onclick="setDevice('pc')">💻 PC版</button>
         </div>
       </div>
       <div class="preview-container">
@@ -144,9 +165,7 @@
   </div>
 
   <script>
-    // ▼▼▼ ここで合言葉（パスワード）を変更できます ▼▼▼
-    const CORRECT_PASSWORD = 'note_pc_kaiteki_2026';
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    const CORRECT_PASSWORD = 'note2026';
 
     window.onload = function() {
       if (localStorage.getItem('note_editor_auth') === 'true') {
@@ -185,44 +204,90 @@
       }
     }
 
-    function processText() {
+    function getFormattedLines() {
       const input = document.getElementById('inputText').value;
-      if (!input) {
-        document.getElementById('preview').innerHTML = 'ここにプレビューが表示されます';
-        return;
-      }
+      if (!input) return [];
 
       const optPeriod = document.getElementById('optPeriodBreak').checked;
       const optComma = document.getElementById('optCommaBreak').checked;
       const optProtect = document.getElementById('optProtectQuotes').checked;
 
-      let quotes = [];
-      let workingText = input;
+      const rawLines = input.split('\n');
+      let processedLines = [];
 
-      if (optProtect) {
-        workingText = workingText.replace(/「[\s\S]*?」|『[\s\S]*?』/g, function(match) {
-          quotes.push(match);
-          return `___QUOTE_${quotes.length - 1}___`;
+      for (let i = 0; i < rawLines.length; i++) {
+        let line = rawLines[i];
+        let trimmed = line.trim();
+
+        if (trimmed === '') {
+          processedLines.push('');
+          continue;
+        }
+
+        if (trimmed.startsWith('## ') || trimmed.startsWith('### ') || trimmed.startsWith('>') || trimmed.startsWith('* ') || trimmed.startsWith('- ') || trimmed === '---' || trimmed === '***') {
+          processedLines.push(line);
+          continue;
+        }
+
+        let placeholders = [];
+        let workingLine = line;
+
+        workingLine = workingLine.replace(/\*\*([\s\S]*?)\*\*/g, function(match) {
+          placeholders.push(match);
+          return `___PLACEHOLDER_${placeholders.length - 1}___`;
         });
+
+        if (optProtect) {
+          workingLine = workingLine.replace(/「[\s\S]*?」|『[\s\S]*?』/g, function(match) {
+            placeholders.push(match);
+            return `___PLACEHOLDER_${placeholders.length - 1}___`;
+          });
+        }
+
+        if (optPeriod) workingLine = workingLine.replace(/(。)(?![\n\r]|$)/g, '$1\n');
+        if (optComma) workingLine = workingLine.replace(/(、)(?![\n\r]|$)/g, '$1\n');
+
+        workingLine = workingLine.replace(/___PLACEHOLDER_(\d+)___/g, function(match, index) {
+          return placeholders[index];
+        });
+
+        processedLines.push(workingLine);
       }
 
-      if (optPeriod) workingText = workingText.replace(/。(?![\n\r]|$)/g, '。\n');
-      if (optComma) workingText = workingText.replace(/、(?![\n\r]|$)/g, '、\n');
+      return processedLines.join('\n').split('\n');
+    }
 
-      if (optProtect) {
-        workingText = workingText.replace(/___QUOTE_(\d+)___/g, function(match, index) {
-          return quotes[index];
-        });
-      }
-
-      const lines = workingText.split('\n');
+    // ★【検証ロジック】空行ブロックを排除し、ソフト改行(<br><br>)として同一段落内に統合する方式
+    function buildHTML(lines, isForNote) {
       let htmlResult = '';
       let quoteBuffer = [];
       let inUl = false;
+      let currentParagraphLines = [];
+
+      function formatInline(text) {
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        if (!isForNote) {
+          text = text.replace(/([^\s「」])([？!！?])(」)/g, '$1$2<span class="nowrap-bracket">$3</span>');
+        }
+        return text;
+      }
+
+      function flushParagraph() {
+        if (currentParagraphLines.length > 0) {
+          const formatted = currentParagraphLines.map(l => formatInline(l));
+          // 空行（""）が含まれている場合、それを <br> に変換して1つの <p> 内にまとめる
+          htmlResult += `<p>${formatted.join('<br>')}</p>`;
+          currentParagraphLines = [];
+        }
+      }
 
       function flushQuote() {
         if (quoteBuffer.length > 0) {
-          htmlResult += '<blockquote>' + quoteBuffer.map(line => `<p>${formatLine(line)}</p>`).join('') + '</blockquote>';
+          if (isForNote) {
+            htmlResult += `<blockquote><p>${quoteBuffer.map(l => formatInline(l)).join('<br>')}</p></blockquote>`;
+          } else {
+            htmlResult += '<blockquote>' + quoteBuffer.map(l => `<p>${formatInline(l)}</p>`).join('') + '</blockquote>';
+          }
           quoteBuffer = [];
         }
       }
@@ -234,84 +299,115 @@
         }
       }
 
-      function formatLine(text) {
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        return text.replace(/([^\s「」])([？!！?])(」)/g, '$1$2<span class="nowrap-bracket">$3</span>');
-      }
-
       for (let i = 0; i < lines.length; i++) {
         let line = lines[i];
         let trimmed = line.trim();
 
         if (trimmed.startsWith('>')) {
+          flushParagraph();
           closeUl();
-          let content = trimmed.replace(/^>\s?/, '');
-          quoteBuffer.push(content);
+          quoteBuffer.push(trimmed.replace(/^>\s?/, ''));
           continue;
         } else {
           flushQuote();
         }
 
         if (trimmed.startsWith('### ')) {
+          flushParagraph();
           closeUl();
-          htmlResult += `<h3>${formatLine(trimmed.replace(/^###\s/, ''))}</h3>`;
+          htmlResult += `<h3>${formatInline(trimmed.replace(/^###\s/, ''))}</h3>`;
           continue;
         }
         if (trimmed.startsWith('## ')) {
+          flushParagraph();
           closeUl();
-          htmlResult += `<h2>${formatLine(trimmed.replace(/^##\s/, ''))}</h2>`;
+          htmlResult += `<h2>${formatInline(trimmed.replace(/^##\s/, ''))}</h2>`;
           continue;
         }
 
         if (trimmed === '---' || trimmed === '***') {
+          flushParagraph();
           closeUl();
           htmlResult += '<hr>';
           continue;
         }
 
         if (trimmed.startsWith('* ') || trimmed.startsWith('- ')) {
+          flushParagraph();
           if (!inUl) {
             htmlResult += '<ul>';
             inUl = true;
           }
-          let content = trimmed.replace(/^[\*\-]\s?/, '');
-          htmlResult += `<li>${formatLine(content)}</li>`;
+          htmlResult += `<li>${formatInline(trimmed.replace(/^[\*\-]\s?/, ''))}</li>`;
           continue;
         } else {
           closeUl();
         }
 
         if (trimmed === '') {
-          htmlResult += '<br>';
+          // 空行に出会った場合、段落を分けるのではなく、次の行との間に改行を入れるため空文字をプッシュ
+          currentParagraphLines.push('');
         } else {
-          htmlResult += `<p>${formatLine(trimmed)}</p>`;
+          currentParagraphLines.push(trimmed);
         }
       }
+
+      flushParagraph();
       flushQuote();
       closeUl();
 
-      document.getElementById('preview').innerHTML = htmlResult;
+      return htmlResult;
     }
 
-    function copyResult() {
+    function processText() {
+      const input = document.getElementById('inputText').value;
+      if (!input) {
+        document.getElementById('preview').innerHTML = 'ここにプレビューが表示されます';
+        return;
+      }
+
+      const lines = getFormattedLines();
+      document.getElementById('preview').innerHTML = buildHTML(lines, false);
+    }
+
+    function copyForNote() {
       const input = document.getElementById('inputText').value;
       if (!input.trim()) {
         alert('テキストを入力してください。');
         return;
       }
-      navigator.clipboard.writeText(input);
-      alert('コピーしました！noteの編集画面にそのまま貼り付けられます。');
+
+      const lines = getFormattedLines();
+      const cleanNoteHtml = buildHTML(lines, true);
+      const plainText = lines.join('\n');
+
+      if (navigator.clipboard && window.ClipboardItem) {
+        const blobHtml = new Blob([cleanNoteHtml], { type: 'text/html' });
+        const blobText = new Blob([plainText], { type: 'text/plain' });
+        const data = [new ClipboardItem({ 'text/html': blobHtml, 'text/plain': blobText })];
+
+        navigator.clipboard.write(data).then(() => {
+          alert('note専用形式でコピーしました！そのままnoteの編集画面に貼り付けてください。');
+        }).catch(() => {
+          fallbackCopy(plainText);
+        });
+      } else {
+        fallbackCopy(plainText);
+      }
     }
 
-    // 新機能: 下書き全消し処理
-    function clearText() {
+    function fallbackCopy(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('テキストをコピーしました！');
+      });
+    }
+
+    function clearTest() {
       const input = document.getElementById('inputText');
-      if (!input.value.trim()) {
-        return; // 最初から空なら何も処理しない
-      }
+      if (!input.value.trim()) return;
       if (confirm('入力した下書きをすべて消去しますか？')) {
         input.value = '';
-        processText(); // プレビューもリセット
+        processText();
       }
     }
   </script>
